@@ -1,0 +1,53 @@
+version: "2"
+services:
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    links:
+      - postgres
+    volumes:
+      - ./Project/:/var/www/html/
+    networks:
+      static-network:
+        ipv4_address: 172.20.128.2
+    dns: [172.16.3.3 8.8.8.8]
+    ports:
+      - "80:80"
+
+  postgres:
+    restart: always
+    #image: sameersbn/postgresql:9.6-2
+    build:
+      context: db
+      dockerfile: Dockerfile.samersbn
+    ports:
+      - "5432:5432"
+    environment:
+      - DEBUG=false
+
+      - DB_USER=dev
+      - DB_PASS=dev
+      - DB_NAME=new
+      - DB_TEMPLATE=
+
+      - DB_EXTENSION=
+
+      - REPLICATION_MODE=
+      - REPLICATION_USER=
+      - REPLICATION_PASS=
+      - REPLICATION_SSLMODE=
+    volumes:
+      - ./db/postgresql:/var/lib/postgresql
+    networks:
+      static-network:
+        ipv4_address: 172.20.128.1
+    dns: [172.16.3.3 8.8.8.8]
+
+networks:
+  static-network:
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16
+          ip_range: 172.28.5.0/24
